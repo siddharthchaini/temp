@@ -1,0 +1,49 @@
+https://www.kaggle.com/siddharthchaini/threading-fits-allconds?scriptVersionId=67418957
+
+
+## QUERY
+
+SELECT TOP 200 p.objid, s.specobjid, s.class,p.run, p.rerun, p.camcol, p.field, p.ra, p.dec, s.z as redshift,
+p.dered_u, p.deVRad_u, p.psffwhm_u, p.extinction_u,
+p.dered_g, p.deVRad_g, p.psffwhm_g, p.extinction_g,
+p.dered_r, p.deVRad_r, p.psffwhm_r, p.extinction_r,
+p.dered_i, p.deVRad_i, p.psffwhm_i, p.extinction_i,
+p.dered_z, p.deVRad_z, p.psffwhm_z, p.extinction_z,
+p.u - p.g AS u_g,
+p.g - p.r AS g_r,
+p.r - p.i AS r_i,
+p.i - p.z AS i_z
+INTO mydb.rfaint22
+FROM SpecObj as s
+JOIN PhotoObj AS p ON p.objid = s.bestObjID
+WHERE s.z > 0 AND s.zErr<0.1  AND s.class = 'STAR' AND s.bestObjID = s.fluxObjID
+AND p.r > 22
+AND p.psffwhm_u !=0 AND p.psffwhm_g !=0 AND p.psffwhm_r !=0 AND p.psffwhm_i !=0 AND p.psffwhm_z !=0
+AND ((p.deVRad_u / p.psffwhm_u) + (p.deVRad_g / p.psffwhm_g) + (p.deVRad_r / p.psffwhm_r) + (p.deVRad_i / p.psffwhm_i) + (p.deVRad_z / p.psffwhm_z)) / 5 < 0.5
+AND ((p.err_u/p.u) + (p.err_g/p.g) + (p.err_r/p.r) + (p.err_i/p.i) + (p.err_z/p.z)) / 5 < 0.1
+AND p.deVRad_u != 0 AND p.deVRad_g !=0 AND p.deVRad_r !=0 AND p.deVRad_i !=0 AND p.deVRad_z !=0
+
+AND s.zWarning=0 AND p.clean=1 AND p.mode = 1 AND s.sciencePrimary = 1 AND s.targetType = 'SCIENCE' AND p.insideMask=0
+AND (p.flags_r & 0x20) = 0 
+AND (p.flags_r & 0x80000) = 0 
+AND (p.flags_r & 0x800000000000) = 0 
+AND (p.flags_r & 0x10000000000) = 0 
+AND ((p.flags_r & 0x100000000000) = 0 OR (p.flags_r & 0x1000) = 0) 
+AND (p.flags_r & 0x40000) = 0 
+AND (p.flags_r & 0x80) = 0 
+
+AND (p.flags_r & 0x4) = 0 
+AND ((p.flags_r & 0x10000000) != 0)
+
+AND ((p.flags_r & 0x8100000c00a0) = 0)
+
+
+
+
+AND (((p.flags_r & 0x400000000000) = 0) AND (p.psfmagerr_r <= 0.2))
+
+
+AND (((p.flags_r & 0x100000000000) = 0) AND (p.flags_r & 0x1000) = 0)
+
+
+;
